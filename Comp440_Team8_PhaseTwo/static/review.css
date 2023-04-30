@@ -1,0 +1,116 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #222222;
+  color: #ffffff;
+}
+  
+h1, h2 {
+  font-weight: bold;
+}
+  
+ul {
+  list-style: none;
+  padding: 0;
+}
+  
+header {
+  background-color: #111111;
+  color: #ffffff;
+  padding: 1rem;
+}
+section {
+  padding: 1rem;
+  margin: 3rem;
+  background-color: #111111;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+  
+label {
+  margin-top: 0.5rem;
+  color: #ffffff;
+}
+  
+input, select, textarea {
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 0;
+  border: none;
+  font-size: 1rem;
+  background-color: #111111;
+  color: #ffffff;
+}
+  
+button[type="submit"], .search-bar-btn {
+  background-color: #03C988;
+  color: #ffffff;
+  padding: 0.5rem;
+  border-radius: 0;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  text-decoration: none;
+}
+  
+button[type="submit"]:hover, .search-bar-btn:hover {
+  background-color: #29a869;
+}
+  
+.item-details ul li {
+  margin-bottom: 0.5rem;
+}
+  
+.reviews .review {
+  background-color: #111111;
+  border-radius: 0;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+  
+.reviews .review p {
+  margin-bottom: 0.5rem;
+  color: #ffffff;
+}
+
+footer {
+  background-color: #111111;
+  color: #ffffff;
+  padding: 1rem;
+  text-align: center;
+  margin-top: 2rem;
+}
+  
+.error-messages {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+  
+.error-messages .messages {
+  background-color: #ED2B2A;
+  border: none;
+  color: black;
+  padding: 1em;
+  border-radius: 0.25rem;
+  font-weight: bold;
+  margin: 1em 0;
+  text-align: center;
+  max-width: 600px;
+}
+  
+.error-messages .flashes {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+  
+.error-messages .flashes li {
+  margin-bottom: 0.5em;
+}

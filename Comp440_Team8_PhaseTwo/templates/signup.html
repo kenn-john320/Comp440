@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sign Up</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='Login.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Sign Up</h1>
+      <form id="myForm" method="POST" action="{{ url_for('handle_signup') }}">
+        <div class="error-messages">
+          <div class="messages">
+            {% with messages = get_flashed_messages(with_categories=true,
+            category_filter=["now"]) %} {% if messages %}
+            <ul class="flashes">
+              {% for category, message in messages %}
+              <li class="{{ category }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %} {% endwith %}
+          </div>
+        </div>
+        <label for="username">Username:</label>
+        <input type="text" name="username" required />
+        <br />
+        <label for="email">Email:</label>
+        <input type="email" name="email" required />
+        <br />
+        <label for="firstName">First Name:</label>
+        <input type="text" name="firstName" required />
+        <br />
+        <label for="lastName">Last Name:</label>
+        <input type="text" name="lastName" required />
+        <br />
+        <label for="password">Password:</label>
+        <input type="password" name="password" required />
+        <br />
+        <label for="confirmPassword">Confirm Password:</label>
+        <input type="password" name="confirmPassword" required />
+        <br />
+        <input type="submit" value="Sign Up" />
+      </form>
+      <p>
+        Already have an account?
+        <a href="{{ url_for('handle_signin') }}">Sign In</a>
+      </p>
+    </div>
+  </body>
+</html>

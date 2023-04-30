@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='review.css') }}">
+  </head>
+  
+  <body>
+    <header>
+      <h1>Item Details</h1>
+    </header>
+
+    <section class="item-details">
+      <h2>Item Details</h2>
+      <ul>
+        <li><strong>Title:</strong> {{ item[2] }}</li>
+        <li><strong>Description:</strong> {{ item[3] }}</li>
+        <li><strong>Category:</strong> {{ item[4] }}</li>
+        <li><strong>Price:</strong> {{ item[5] }}</li>
+        <li><strong>Date:</strong> {{ item[6] }}</li>
+      </ul>
+    </section>
+
+    <section class="reviews">
+      <h2>Reviews</h2>
+      {% if reviews %}
+        {% for review in reviews %}
+          <div class="review">
+            <p><strong>Rating:</strong> {{ review[2] }}</p>
+            <p><strong>Description:</strong> {{ review[3] }}</p>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>No reviews found.</p>
+      {% endif %}
+    </section>
+
+    <section class="submit-review">
+      <h2>Submit a review</h2>
+      <form method="POST" action="{{ url_for('submit_review', item_id=item[0]) }}">
+        <label for="username">Username for Verification:</label>
+        <input type="username" id="title" name="username" required>
+        <br><br>
+        <label for="rating">Rating:</label>
+        <select id="rating" name="rating" required>
+          <option value="Excellent">Excellent</option>
+          <option value="Great">Great</option>
+          <option value="Mid">Mid</option>
+          <option value="Poor">Poor</option>
+        </select>
+        <br><br>
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea>
+        <br><br>
+        <button type="submit" class="submit-btn">Submit Review</button>
+        <div class="error-messages">
+          <div class="messages">
+            {% with messages = get_flashed_messages(with_categories=true, category_filter=["now"]) %}
+              {% if messages %}
+                <ul class="flashes">
+                  {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+          </div>
+        </div>
+      </form>
+      <br>
+      <a href="{{ url_for('searchbar') }}" class="search-bar-btn">Search</button></a>
+    </section>
+  </body>
+</html>
