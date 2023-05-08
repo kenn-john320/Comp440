@@ -10,7 +10,6 @@ db_path = 'database.sqlite'
 
 app.config['FLASH_CATEGORY'] = 'now'
 
-# Creation of database
 def init_database():
     if not os.path.exists(db_path):
         conn = sqlite3.connect(db_path)
@@ -41,7 +40,7 @@ def init_database():
                     )''')
 
         
-        # Create test populations for database initialization
+        # Add example users
         example_users = [
             ('test1', 'test1@gmail.com','firstName1','lastName1', 'password1'),
             ('test2', 'test2@gmail.com','firstName2','lastName2', 'password2'),
@@ -55,8 +54,6 @@ def init_database():
         conn.commit()
         conn.close()
 
-
-# MAIN ROUTE START
 @app.route('/', methods=['GET', 'POST'])
 def main():
     if request.method == 'POST':
@@ -67,12 +64,11 @@ def main():
             return redirect(url_for('handle_signup'))
         elif action == 'init_db':
             init_database()
-            flash('Database initialized!', app.config['FLASH_CATEGORY'])
+            flash('Database initialize successfully!', app.config['FLASH_CATEGORY'])
     return render_template('signin.html')
 
 from datetime import datetime, timedelta
 
-#Item route
 @app.route('/add_item', methods=['GET', 'POST'])
 def add_item():
     if request.method == 'POST':
@@ -85,8 +81,7 @@ def add_item():
         yesterday = today - timedelta(days=1)
         with sqlite3.connect(db_path) as conn:
             c = conn.cursor()
-
-            # Searching to validate existing user exists
+            # Check if the username exists in the user table
             c.execute('SELECT COUNT(*) FROM users WHERE username = ?', (username,))
             count = c.fetchone()[0]
             if count > 0:
@@ -104,7 +99,7 @@ def add_item():
                 flash('Invalid username. Please enter a valid username.', app.config['FLASH_CATEGORY'])
                 return render_template('searchbar.html')
     return render_template('searchbar.html')
-# sign in route
+
 @app.route('/signin', methods=['GET', 'POST'])
 def handle_signin():
     if request.method == 'POST':
@@ -122,12 +117,12 @@ def handle_signin():
                 
     return render_template('signin.html')
 
-# profile route
+
 @app.route('/profile/<firstName>/<lastName>/<username>/<email>')
 def profile(firstName, lastName, username, email):
     return render_template('profile.html', name=firstName + " " + lastName, username=username, email=email)
 
-# signup route
+
 @app.route('/signup', methods=['GET', 'POST'])
 def handle_signup():
     if request.method == 'POST':
@@ -156,17 +151,16 @@ def handle_signup():
                 return redirect(url_for('handle_signup'))
 
             c.execute('''INSERT INTO users (username, email, firstName, lastName, password) 
-                VALUES (?, ?, ?, ?, ?)''', (username, email, firstName, lastName, password))
+                        VALUES (?, ?, ?, ?, ?)''', (username, email, firstName, lastName, password))
             conn.commit()
 
-            # Will flash a warning when the registration is successful
             flash('Registration successful!', app.config['FLASH_CATEGORY'])
             return redirect(url_for('handle_signin'))
 
     return render_template('signup.html')
 
 
-#search route
+
 @app.route('/searchbar', methods=['GET', 'POST'])
 def searchbar():
     if request.method == 'GET':
@@ -179,7 +173,7 @@ def searchbar():
     elif request.method == 'POST':
         selected_item_id = request.form.get('selected_item_id')
         if selected_item_id:
-            # retrieve the selected item from the database and pass it to selected html page
+            # retrieve the selected item from the database and pass it to the selected.html template
             with sqlite3.connect(db_path) as conn:
                 c = conn.cursor()
                 c.execute('SELECT * FROM items WHERE id = ?', (selected_item_id,))
@@ -187,11 +181,11 @@ def searchbar():
                 if item:
                     return render_template('selected.html', item=item)
         
-        # if no item was chosen, will redirect to the searchbar template
+        # if no item was selected, just render the searchbar template
         return redirect(url_for('searchbar'))
 
 
-#item search route
+
 @app.route('/search_items', methods=['GET'])
 def search_items():
     if request.method == 'GET':
@@ -202,7 +196,6 @@ def search_items():
             items = c.fetchall()
             return render_template('searchbar.html', search_results=items)
     return redirect(url_for('searchbar'))
-#specific item route
 
 @app.route('/item/<int:item_id>/')
 def item_detail(item_id):
@@ -218,7 +211,6 @@ def item_detail(item_id):
             return "Item not found", 404
 
 
-#review route 
 @app.route('/item/<int:item_id>/submit_review', methods=['GET','POST'])
 def submit_review(item_id):
     if request.method == 'POST':
@@ -229,15 +221,13 @@ def submit_review(item_id):
         yesterday = today - timedelta(days=1)
         with sqlite3.connect(db_path) as conn:
             c = conn.cursor()
-
-            # Validating user input for username exists
+            # Check if the username exists in the user table
             c.execute('SELECT COUNT(*) FROM users WHERE username = ?', (username,))
             user_count = c.fetchone()[0]
             if user_count == 0:
                 flash('You must be a registered user to submit a review', app.config['FLASH_CATEGORY'])
                 return redirect(url_for('item_detail', item_id=item_id))
-                
-            # Fetching username from given item
+            # Retrieve the username associated with the item_id
             c.execute('SELECT username FROM items WHERE id = ?', (item_id,))
             item_username = c.fetchone()[0]
             if username == item_username:
@@ -256,7 +246,6 @@ def submit_review(item_id):
     return render_template('selected.html')
     
 
-# clearing messages such as succesful signup/incorrect username etc
 @app.route('/clear-flash', methods=['POST'])
 def clear_flash():
     session.pop('_flashes', None)

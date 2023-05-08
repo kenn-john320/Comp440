@@ -1,17 +1,21 @@
-/* General Styles */
-
 body {
   background-color: #1a1a1a;
   color: #fff;
   font-family: Arial, sans-serif;
 }
 
-/* Header Styles */
-
 header {
   padding: 30px;
   background-color: #1a1a1a;
   border-radius: 10px;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #03c988;
 }
 
 h1 {
@@ -19,8 +23,6 @@ h1 {
   margin-bottom: 20px;
   text-align: center;
 }
-
-/* Section Styles */
 
 section {
   display: flex;
@@ -70,11 +72,11 @@ input[type="password"]:focus,
 button[type="submit"]:focus,
 textarea:focus {
   outline: none;
-  border-color: #03C988;
+  border-color: #03c988;
 }
 
 button {
-  background-color: #03C988;
+  background-color: #03c988;
   color: #fff;
   cursor: pointer;
   margin-top: 10px;
@@ -102,15 +104,13 @@ li {
 }
 
 a {
-  color: #03C988;
+  color: #03c988;
   text-decoration: none;
 }
 
 a:hover {
   color: #29a869;
 }
-
-/* Footer Styles */
 
 footer {
   text-align: center;
@@ -122,8 +122,4 @@ footer {
   border-radius: 10px;
   padding: 20px;
   margin: 20px 0;
-}
-
-.search-bar-btn {
-  /* Add your styles for search bar button here */
 }
