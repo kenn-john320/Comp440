@@ -359,7 +359,7 @@ def submit_review(item_id):
     return render_template("selected.html")
 
 
-@app.route("/user_forum", methods = ['GET', 'POST'])
+@app.route("/user_forum", methods=["GET", "POST"])
 def user_forum():
     with sqlite3.connect(db_path) as conn:
         c = conn.cursor()
@@ -407,35 +407,44 @@ def user_forum():
         )
         top_users = c.fetchall()
 
-
         # (Part 3: Number 5)
         # Fetch all usernames from the database and display them in a dropdown menu
         c.execute("SELECT DISTINCT username FROM favorites")
         usernames = c.fetchall()
 
-        # Fetch all favorite users from the database and display them in a dropdown menu
-        c.execute("SELECT DISTINCT favorite_user FROM favorites")
-        favorite_users = c.fetchall()
+        username1 = ""
+        username2 = ""
 
         # Check if both dropdown menus are selected and find the users who have the same favorite user
         if request.method == "POST":
-            username = request.form["username"]
-            favorite_user = request.form["favorite_user"]
+            username1 = request.form["username1"]
+            username2 = request.form["username2"]
             c.execute(
-                "SELECT username FROM favorites WHERE favorite_user=? AND username!=?",
-                (favorite_user, username),
+                f"""SELECT favorite_user
+                    FROM favorites
+                    WHERE username = '{username1}'
+                    AND favorite_user IN (
+                      SELECT favorite_user
+                      FROM favorites
+                      WHERE username = '{username2}'
+                    );
+                    """
             )
             common_favorites = c.fetchall()
         else:
             common_favorites = None
 
-
     # (Part 3: Number 6)
     # Display all the users who never posted any "excellent" items
+    # An item is considered excellent if it has at least 3 reviews of "Excellent"
     c.execute(
-        """ SELECT DISTINCT items.username FROM items 
+        """ select username from users where username not in (SELECT DISTINCT items.username
+            FROM items
             LEFT JOIN reviews ON items.id = reviews.item_id
-            WHERE reviews.rating = "Excellent" OR reviews.rating IS NULL"""
+            WHERE reviews.rating = 'Excellent'
+            GROUP BY items.id, items.username
+            HAVING COUNT(reviews.id) >= 3)
+            """
     )
     excellent_users = c.fetchall()
 
@@ -451,34 +460,53 @@ def user_forum():
 
     # (Part 3: Number 9)
     # Display users such that each item they posted so far never received any "Poor" reviews
-    c.execute(
-        """
-            SELECT DISTINCT username
-            FROM reviews
-            WHERE username NOT IN (
-            SELECT DISTINCT username
-            FROM reviews
-            WHERE rating = 'Poor'
-            );
-            """
-    )
+    c.execute('''
+            WITH poor_review_users AS (
+                SELECT DISTINCT i.username
+                FROM items i
+                JOIN reviews r ON i.id = r.item_id
+                WHERE r.rating = "Poor"
+            )
+            SELECT DISTINCT i.username
+            FROM items i
+            WHERE i.username NOT IN (SELECT username FROM poor_review_users)
+        ''')
     good_item_users = c.fetchall()
+    
 
-    # (Part 3: Number 10)
+    # !(Part 3: Number 10)
     # Get a user pair (A, B) such that they always gave each other "excellent" reviews for every single item they posted
-    c.execute(
-        """SELECT i1.username as user1, i2.username as user2
-                FROM items i1
-                INNER JOIN reviews r1 ON i1.id = r1.item_id AND r1.rating = 'Excellent'
-                INNER JOIN items i2 ON i2.username = r1.username AND i1.id != i2.id
-                INNER JOIN reviews r2 ON i2.id = r2.item_id AND r2.rating = 'Excellent' AND r2.username = i1.username;"""
-    )
-    _excellent_review_pairs = [list(sorted(x)) for x in c.fetchall()]
-    excellent_review_pairs = [
-        pair
-        for i, pair in enumerate(_excellent_review_pairs)
-        if pair not in _excellent_review_pairs[:i]
-    ]
+
+    # c.execute("""select * from items""")
+    # print(c.fetchall())
+
+    # Get a user pair (A, B) such that they always gave each other "excellent" reviews for every single item they posted
+    c.execute('''SELECT i1.username as user1, i2.username as user2
+                    FROM items i1
+                    INNER JOIN reviews r1 ON i1.id = r1.item_id AND r1.rating = 'Excellent'
+                    INNER JOIN items i2 ON i2.username = r1.username AND i1.id != i2.id
+                    INNER JOIN reviews r2 ON i2.id = r2.item_id AND r2.username = i1.username
+                    WHERE NOT EXISTS (
+                        SELECT 1
+                        FROM reviews r3
+                        WHERE r3.username = i1.username AND r3.item_id = i2.id AND r3.rating != 'Excellent'
+                        OR r3.username = i2.username AND r3.item_id = i1.id AND r3.rating != 'Excellent'
+                    )''')
+    excellent_review_pairs = [list(sorted(x)) for x in c.fetchall()]
+    ret = [pair for i, pair in enumerate(excellent_review_pairs) if pair not in excellent_review_pairs[:i]]
+
+
+    # HOLD ON
+    
+    # for t in c.fetchall():
+    #     print(t)
+
+    # _excellent_review_pairs = [list(sorted(x)) for x in exc]
+    # excellent_review_pairs = [
+    #     pair
+    #     for i, pair in enumerate(_excellent_review_pairs)
+    #     if pair not in _excellent_review_pairs[:i]
+    # ]
     # print(excellent_review_pairs)
 
     return render_template(
@@ -492,10 +520,11 @@ def user_forum():
         excellent_users=excellent_users,
         poor_review_users=poor_review_users,
         good_item_users=good_item_users,
-        excellent_review_pairs=excellent_review_pairs,
+        excellent_review_pairs=ret,
         usernames=usernames,
-        favorite_users=favorite_users,
-        common_favorites=common_favorites
+        username1=username1,
+        username2=username2,
+        common_favorites=common_favorites,
     )
 
 
@@ -508,4 +537,4 @@ def clear_flash():
 
 if __name__ == "__main__":
     init_database()
-    app.run(debug=True)
+    app.run()

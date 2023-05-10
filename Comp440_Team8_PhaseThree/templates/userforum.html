@@ -137,18 +137,18 @@
     <section class="common-favorites-section">
       <h2>Find Users with Common Favorite Users</h2>
       <form method="post" action="{{ url_for('user_forum') }}">
-        <label for="username">Select a username:</label>
-        <select name="username" id="username">
-          <option value="" disabled selected hidden>INDIVIDUAL</option>
+        <label for="username1">Select a username:</label>
+        <select name="username1" id="username1">
+          <option value="" disabled selected hidden>USERNAME 1</option>
           {% for user in usernames %}
           <option value="{{ user[0] }}">{{ user[0] }}</option>
           {% endfor %}
         </select>
         <br /><br />
-        <label for="favorite_user">Select a favorite user:</label>
-        <select name="favorite_user" id="favorite_user">
-          <option value="" disabled selected hidden>FAVORITE</option>
-          {% for user in favorite_users %}
+        <label for="username2">Select a username:</label>
+        <select name="username2" id="username2">
+          <option value="" disabled selected hidden>USERNAME 2</option>
+          {% for user in usernames %}
           <option value="{{ user[0] }}">{{ user[0] }}</option>
           {% endfor %}
         </select>
