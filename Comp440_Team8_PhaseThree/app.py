@@ -450,7 +450,7 @@ def user_forum():
 
     # (Part 3: Number 7)
     # Fetch all usernames from the database for the given rating of Poor
-    c.execute("SELECT DISTINCT username FROM reviews WHERE rating!=?", ("Poor",))
+    c.execute("SELECT username FROM reviews WHERE username NOT IN (SELECT username FROM reviews WHERE rating='Poor') GROUP BY username")
     users2 = c.fetchall()
 
     # (Part 3: Number 8)
